@@ -1,11 +1,12 @@
-#include<stdio.h>
-#include<string.h>
-#include <sys/types.h>          /* See NOTES */
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>         
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 #define PORT 8899
-#define BUFFSIZE 120000
+#define BUFFSIZE 500000
 
 int main(void)
 {

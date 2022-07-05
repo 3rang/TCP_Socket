@@ -7,14 +7,17 @@
 #include<pthread.h>
 #include<sys/time.h>
 #include<stdlib.h>
+#include<unistd.h>
 
 #define PORT 8899
 #define MAX_CONNECTION 50
-#define BUFFSIZE 120000
+#define BUFFSIZE 500000
 struct arg_struct
 {
 	int arg1;
 	long arg2;
+	FILE *arg_fp;
+
 } *args;
 
 long getMicrotime(){
@@ -36,17 +39,11 @@ void *thread_handler(void *arg)
 	{
 		j=read(newsock,(char *)&buff,sizeof(buff));
 		if(j > 0 ){
-//			if(j==0)
-//			{
 				time_up=getMicrotime();
-			//	j=1;
-//			}
-		//	printf("In thread at accept_time = %ld & sock id =%d \n",time_up,newsock);
 			printf("Read_size / Cli_Id / Diff_time / size / = %d / %d / %ld / %ld \n",j,newsock,(time_up-ct),sizeof(buff));
+			fprintf(ar->arg_fp,"%d,%ld,%d,%ld\n",newsock,sizeof(buff),j,(time_up-ct));
 			ct=time_up;
-		//	printf("Data_size=%ld\n",sizeof(buff));
 			bzero(&buff,BUFFSIZE);
-//			j=1;
 		}
 	}	
 	return NULL;
@@ -60,6 +57,10 @@ int main(void)
 	struct sockaddr_in server_addr, client_addr;
 	pthread_t pid[MAX_CONNECTION];
 	server_fd=socket(AF_INET,SOCK_STREAM,0);
+
+	FILE *fp;
+
+
 	if(-1==server_fd)
 	{
 		printf("Error in socket creation\n");
@@ -91,6 +92,9 @@ int main(void)
 
 	args = malloc(sizeof(struct arg_struct) * 1);
 
+	fp = fopen("log.csv","w+");
+
+	fprintf(fp,"Client_Ids,total_buffer,recive_buff,time_diff\n");
 
 	while(1)
 	{	
@@ -100,6 +104,7 @@ int main(void)
 
 		args->arg1 = client_sock;
 		args->arg2 = getMicrotime();
+		args->arg_fp = fp;
 
 		printf("at accept_time = %ld & sock id =%d \n",args->arg2,args->arg1);
 		pthread_create(&pid[i++],NULL,thread_handler,args);
@@ -107,4 +112,5 @@ int main(void)
 	}
 
 	close(server_fd);
+	fclose(fp);
 }
