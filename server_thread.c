@@ -10,7 +10,7 @@
 
 #define PORT 8899
 #define MAX_CONNECTION 50
-
+#define BUFFSIZE 120000
 struct arg_struct
 {
 	int arg1;
@@ -27,18 +27,26 @@ void *thread_handler(void *arg)
 {
 	struct arg_struct *ar = arg;
 	printf("here\n");
-	char buff[1000];
+	char buff[BUFFSIZE];
 	int newsock = ar->arg1;
 	long ct= ar->arg2;
-	long time_up=ct;
+	int j=0;
+	long time_up=getMicrotime();
 	while(1)
 	{
-		read(newsock,(char *)&buff,sizeof(buff));
-		if(read > 0 ){
-			printf("In thread at accept_time = %ld & sock id =%d \n",time_up,newsock);
-			printf("Diff_time = %ld \n",(getMicrotime()-time_up));
-			printf("Data=%s\n",buff);
-			bzero(&buff,1000);
+		j=read(newsock,(char *)&buff,sizeof(buff));
+		if(j > 0 ){
+//			if(j==0)
+//			{
+				time_up=getMicrotime();
+			//	j=1;
+//			}
+		//	printf("In thread at accept_time = %ld & sock id =%d \n",time_up,newsock);
+			printf("Read_size / Cli_Id / Diff_time / size / = %d / %d / %ld / %ld \n",j,newsock,(time_up-ct),sizeof(buff));
+			ct=time_up;
+		//	printf("Data_size=%ld\n",sizeof(buff));
+			bzero(&buff,BUFFSIZE);
+//			j=1;
 		}
 	}	
 	return NULL;

@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 
 #define PORT 8899
-
+#define BUFFSIZE 120000
 
 int main(void)
 {
@@ -19,12 +19,15 @@ int main(void)
 
 	connect(client_fd,(struct sockaddr *)&client_addr,sizeof(client_addr));
 
-	char buff[1000];
+	char buff[BUFFSIZE];
+	
+//	strcpy("hello world",buff);
 	while(1)
 	{
-	printf("Enter the message\n");
-	scanf("%s",buff);
-	send(client_fd,&buff,strlen(buff),0);
+//	printf("Enter the message\n");
+//	scanf("%s",buff);
+	send(client_fd,&buff,sizeof(buff),0);
+	usleep(200000);
 	}
 	close(client_fd);
 
