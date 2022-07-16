@@ -8,6 +8,8 @@
 #include<sys/time.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include<signal.h>
+
 
 #define PORT 8899
 #define MAX_CONNECTION 50
@@ -20,6 +22,12 @@ struct arg_struct
 
 } *args;
 
+void sig_handler(int signum){
+	printf("\nInside handler function\n");
+//	signal(SIGINT,SIG_DFL);   // Re Register signal handler for default action
+	exit(0);
+}
+
 long getMicrotime(){
 	struct timeval currentTime;
 	gettimeofday(&currentTime, NULL);
@@ -29,7 +37,7 @@ long getMicrotime(){
 void *thread_handler(void *arg)
 {
 	struct arg_struct *ar = arg;
-	printf("here\n");
+	//	printf("here\n");
 	char buff[BUFFSIZE];
 	int newsock = ar->arg1;
 	long ct= ar->arg2;
@@ -39,13 +47,14 @@ void *thread_handler(void *arg)
 	{
 		j=read(newsock,(char *)&buff,sizeof(buff));
 		if(j > 0 ){
-				time_up=getMicrotime();
-			printf("Read_size / Cli_Id / Diff_time / size / = %d / %d / %ld / %ld \n",j,newsock,(time_up-ct),sizeof(buff));
+			time_up=getMicrotime();
+			//	printf("Read_size / Cli_Id / Diff_time / size / = %d / %d / %ld / %ld \n",j,newsock,(time_up-ct),sizeof(buff));
 			fprintf(ar->arg_fp,"%d,%ld,%d,%ld\n",newsock,sizeof(buff),j,(time_up-ct));
 			ct=time_up;
 			bzero(&buff,BUFFSIZE);
 		}
-	}	
+	}
+	pthread_exit(0);	
 	return NULL;
 }
 
@@ -60,6 +69,7 @@ int main(void)
 
 	FILE *fp;
 
+	signal(SIGINT,sig_handler);	
 
 	if(-1==server_fd)
 	{

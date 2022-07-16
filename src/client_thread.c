@@ -22,13 +22,12 @@ int main(void)
 
 	char buff[BUFFSIZE];
 	
-//	strcpy("hello world",buff);
 	while(1)
 	{
-//	printf("Enter the message\n");
-//	scanf("%s",buff);
-	send(client_fd,&buff,sizeof(buff),0);
-	usleep(200000);
+	
+		send(client_fd,&buff,sizeof(buff),0);
+		usleep(200000);
+	
 	}
 	close(client_fd);
 
